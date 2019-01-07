@@ -8,6 +8,7 @@ from twitchio.ext import commands
 
 
 class Bot(commands.Bot):
+    loaded_songs = []
     lyrics = []
     stripped_lyrics = []
     last_messages = {}
@@ -36,18 +37,25 @@ class Bot(commands.Bot):
         count = 0
 
         for filename in glob.iglob("songs/**/*.txt", recursive=True):
+            self.loaded_songs.append(os.path.basename(filename).replace(".txt", ""))
             count = count + 1
+
             with open(filename, 'r') as f:
-                lines = f.read().split('\n')
+                lines = (line.rstrip() for line in f)
+                lines = list(line.replace("\n", "") for line in lines if line)
                 f.seek(0)
-                temp_lines = self.strip_lines(f.read()).split('\n')
+                temp_lines = list(self.strip_lines(line).replace("\n", "") for line in lines if line)
+
+                print(temp_lines)
 
                 for index, line in enumerate(lines):
                     self.lyrics.append(line)
                     self.stripped_lyrics.append(temp_lines[index])
 
+                self.lyrics.append("")
+                self.stripped_lyrics.append("")
+
         print(str(count) + " song(s) parsed.")
-        os.chdir("..")
 
     async def check_for_lyrics(self, message):
         author = message.author.name
@@ -88,14 +96,7 @@ class Bot(commands.Bot):
 
     @commands.command(name='whatsongs')
     async def what_songs(self, ctx):
-        os.chdir("songs")
-        songs = []
-
-        for file in glob.glob("*.txt"):
-            songs.append(os.path.basename(file).replace(".txt", ""))
-
-        await ctx.send("The currently available songs to sing with me are:")
-        await ctx.send(", ".join(songs))
+        await ctx.send("The currently available songs to sing with me are: " + ', '.join(self.loaded_songs))
 
     def is_lyric(self, message):
         return self.strip_lines(message) in self.stripped_lyrics
