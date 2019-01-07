@@ -40,7 +40,7 @@ class Bot(commands.Bot):
         print(str(count) + " song(s) parsed")
 
     async def check_for_lyrics(self, message):
-        message_trimmed = message.content.lower().translate(str.maketrans('', '', string.punctuation))
+        message_trimmed = self.strip_lines(message.content)
         author = message.author.name
 
         if message_trimmed in self.stripped_lyrics:
