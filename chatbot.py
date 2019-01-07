@@ -11,7 +11,7 @@ class Bot(commands.Bot):
     repeat_counts = {}
 
     def __init__(self):
-oauth:kepquk1649d0mli9qyys176e2flk3r
+irc_token=oauth:kepquk1649d0mli9qyys176e2flk3r
                          nick='sirsingalot', prefix='', initial_channels=['jamie932'])
 
     async def event_ready(self):
@@ -37,7 +37,7 @@ oauth:kepquk1649d0mli9qyys176e2flk3r
                     self.lyrics.append(line)
                     self.stripped_lyrics.append(temp_lines[index])
 
-        print(str(count) + " song(s) parsed")
+        print(str(count) + " song(s) parsed.")
 
     async def check_for_lyrics(self, message):
         message_trimmed = self.strip_lines(message.content)
