@@ -1,7 +1,7 @@
 import glob
 import os
-import string
 import random
+import string
 import time
 
 from twitchio.ext import commands
@@ -73,12 +73,16 @@ class Bot(commands.Bot):
             else:
                 self.repeat_counts[author] = 1
 
-            lyric_index = self.stripped_lyrics.index(message_trimmed)
-            await ctx.send(self.lyrics[lyric_index + ((self.repeat_counts[author] - 1) * 2) + 1])
+            lyric_matches = [i for i, x in enumerate(self.stripped_lyrics) if x == message_trimmed]
+            lyric_index = lyric_matches[self.repeat_counts[author] - 1]
+            next_lyric = lyric_index + 1
+
+            if self.lyrics[next_lyric] == '':
+                self.repeat_counts[author] = 1
+                next_lyric = lyric_matches[self.repeat_counts[author]]
+
+            await ctx.send(self.lyrics[next_lyric])
             self.last_messages[author] = message_trimmed
-            return True
-        else:
-            return False
 
     @commands.command(name='whoami')
     async def who_am_i(self, ctx):
@@ -92,11 +96,15 @@ class Bot(commands.Bot):
             time.sleep(2)
             await ctx.send("You are now " + self.user_roles[ctx.author.name] + "!")
         else:
-            await ctx.send(f'Hello again {self.user_roles[ctx.author.name]}!')
+            await ctx.send(f'Hello again {self.user_roles[ctx.author.name]}, how are you doing?')
 
-    @commands.command(name='whatsongs')
+    @commands.command(name='songs')
     async def what_songs(self, ctx):
         await ctx.send("The currently available songs to sing with me are: " + ', '.join(self.loaded_songs))
+
+    @commands.command(name='listento')
+    async def listen_to(self, ctx):
+        await ctx.send("You should listen to: " + random.choice(self.loaded_songs))
 
     def is_lyric(self, message):
         return self.strip_lines(message) in self.stripped_lyrics
